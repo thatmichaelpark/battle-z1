@@ -11,9 +11,8 @@ io.on('connection', function (socket) {
   socket.on('disconnect', function () {
     console.log('user disconnected');
   })
-  socket.on('chat message', function (msg) {
-    led.toggle();
-    io.emit('chat message', msg);
+  socket.on('servo', function (angle) {
+    servo.to(angle);
   })
 });
 
@@ -21,15 +20,19 @@ http.listen(3003, function () {
   console.log('listening on *:3003');
 });
 
-var led;
+
 
 var five = require("johnny-five");
 var board = new five.Board({repl: false});
+var led;
+var servo;
 
 board.on("ready", function() {
   console.log("Ready event. Repl instance auto-initialized!");
 
   led = new five.Led(11);
+
+  servo = new five.Servo(8);
 
   var sensor = new five.Sensor({
     pin: "A0",
@@ -37,8 +40,7 @@ board.on("ready", function() {
     threshold: 20
   });
   sensor.on('change', function (d) {
-    console.log(d);
-    io.emit('chat message', d);
+    io.emit('pot', d);
   })
 
 });
