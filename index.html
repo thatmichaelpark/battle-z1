@@ -8,19 +8,22 @@
   </head>
   <body>
     <div id="pot">0</div>
-    <form action="">
-      <input id="angle" type="number" min="0" max="180"/>
-      <button>Send</button>
-    </form>
+    <!-- <form action=""> -->
+      <input id="angle" type="range" min="0" max="180"/>
+      <!-- <button>Send</button>
+    </form> -->
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
       var socket = io();
-      $('form').submit(function () {
-        socket.emit('servo', $('#angle').val());
-        $('#m').val('');
-        return false;
-      });
+      // $('form').submit(function () {
+      //   socket.emit('servo', $('#angle').val());
+      //   $('#m').val('');
+      //   return false;
+      // });
+      $('input').on('change', function (event) {
+        socket.emit('servo', event.target.value);
+      })
       socket.on('pot', function (a) {
         $('#pot').text(a);
       });
