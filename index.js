@@ -40,7 +40,7 @@ io.on('connection', function (socket) {
   });
 
   socket.on('move', function (data) {
-    console.log('move from', data.id);
+    console.log('move from', data.id, data.move);
     storeMove(data.id, data.move);
   });
   function storeMove(id, move) {

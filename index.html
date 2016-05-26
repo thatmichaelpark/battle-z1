@@ -6,7 +6,7 @@
     <style>
       #drawdiv {
         position: absolute;
-        top: 0;
+        top: 2rem;
         right: 0;
         bottom: 0;
         left: 0;
@@ -14,6 +14,7 @@
     </style>
   </head>
   <body>
+    <input type="checkbox" id="checkbox" name="name" value="">
     <div id="drawdiv">
       <canvas id="canvas"></canvas>
     </div>
@@ -46,40 +47,51 @@
       socket.on('update', function (data) {
         world = data;
         redraw(world);
-        console.log('redrawing');
+        for (var p of world) {
+          if (p.id == id) {
+            move = p.move;
+            break;
+          }
+        }
+        if ($('#checkbox').prop('checked')) {
+          move = +move + 1;
+        } else {
+          move = +move - 1;
+        }
+        console.log('redrawing ', id, move);
         socket.emit('move', {
           id: id,
           move: move
         });
       })
-      document.addEventListener('keydown', function (event) {
-        event.preventDefault();
-        key(event.code, true);
-      });
-
-      document.addEventListener('keydown', function (event) {
-        event.preventDefault();
-        key(event.code, false);
-      });
-
-      function key(keyCode, down) {
-        switch (keyCode) {
-          case 'ArrowLeft':
-            move.left ^= down;
-            break;
-          case 'ArrowRight':
-            move.right ^= down;
-            break;
-          case 'ArrowUp':
-            move.fwd ^= down;
-            break;
-          case 'ArrowDown':
-            move.back ^= down;
-            break;
-          default:
-          console.log(keyCode);
-        }
-      }
+      // document.addEventListener('keydown', function (event) {
+      //   event.preventDefault();
+      //   key(event.code, true);
+      // });
+      //
+      // document.addEventListener('keydown', function (event) {
+      //   event.preventDefault();
+      //   key(event.code, false);
+      // });
+      //
+      // function key(keyCode, down) {
+      //   switch (keyCode) {
+      //     case 'ArrowLeft':
+      //       move.left ^= down;
+      //       break;
+      //     case 'ArrowRight':
+      //       move.right ^= down;
+      //       break;
+      //     case 'ArrowUp':
+      //       move.fwd ^= down;
+      //       break;
+      //     case 'ArrowDown':
+      //       move.back ^= down;
+      //       break;
+      //     default:
+      //     console.log(keyCode);
+      //   }
+      // }
 
       var canvas = $('#canvas')[0];
       var ctx = canvas.getContext('2d');
@@ -95,15 +107,23 @@
 
       function redraw(world) {
         var s = '> ';
-        for (p of world) {
-          s += p.id + ' ' + (p.move.left ? 'L' : '.' ) + (p.move.right ? 'R' : '.' ) + (p.move.fwd ? 'F' : '.' ) + (p.move.back ? 'B' : '.' ) + '; ';
+        for (var p of world) {
+          // s += p.id + ' ' + (p.move.left ? 'L' : '.' ) + (p.move.right ? 'R' : '.' ) + (p.move.fwd ? 'F' : '.' ) + (p.move.back ? 'B' : '.' ) + '; ';
+          s += p.id + ' ' + p.move + '; ';
         }
         console.log(s);;;
-        return;;;
-        ctx.moveTo(0, 0);
-        ctx.lineTo(canvas.width, canvas.height);
-        ctx.lineWidth = 10;
-        ctx.stroke();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = '60px serif';
+        var x = 200;
+        var y = 200;
+        for (p of world) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(+p.move / 180 * Math.PI);
+          ctx.fillText(p.id + ' ' + p.move, 0, 0);
+          x += 300;
+          ctx.restore();
+        }
       }
     </script>
   </body>
