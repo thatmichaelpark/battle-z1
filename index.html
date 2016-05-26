@@ -2,31 +2,109 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>J5 Test</title>
+    <title>B0 Test</title>
     <style>
+      #drawdiv {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
     </style>
   </head>
   <body>
-    <div id="pot">0</div>
-    <!-- <form action=""> -->
-      <input id="angle" type="range" min="0" max="180"/>
-      <!-- <button>Send</button>
-    </form> -->
+    <div id="drawdiv">
+      <canvas id="canvas"></canvas>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
+
+    var id;
+    var move = {
+      left: false,
+      right: false,
+      fwd: false,
+      back: false
+    };
+    var world = [];
+
       var socket = io();
       // $('form').submit(function () {
       //   socket.emit('servo', $('#angle').val());
       //   $('#m').val('');
       //   return false;
       // });
-      $('input').on('change', function (event) {
-        socket.emit('servo', event.target.value);
-      })
-      socket.on('pot', function (a) {
-        $('#pot').text(a);
+      socket.on('assignID', function (myid) {
+        id = myid;
+        console.log('my id =', id);
       });
+      socket.on('msg', function (msg) {
+        console.log(msg);
+      });
+      socket.on('update', function (data) {
+        world = data;
+        redraw(world);
+        console.log('redrawing');
+        socket.emit('move', {
+          id: id,
+          move: move
+        });
+      })
+      document.addEventListener('keydown', function (event) {
+        event.preventDefault();
+        key(event.code, true);
+      });
+
+      document.addEventListener('keydown', function (event) {
+        event.preventDefault();
+        key(event.code, false);
+      });
+
+      function key(keyCode, down) {
+        switch (keyCode) {
+          case 'ArrowLeft':
+            move.left ^= down;
+            break;
+          case 'ArrowRight':
+            move.right ^= down;
+            break;
+          case 'ArrowUp':
+            move.fwd ^= down;
+            break;
+          case 'ArrowDown':
+            move.back ^= down;
+            break;
+          default:
+          console.log(keyCode);
+        }
+      }
+
+      var canvas = $('#canvas')[0];
+      var ctx = canvas.getContext('2d');
+
+      resize();
+      window.addEventListener('resize', resize);
+
+      function resize() {
+        canvas.width = $('#drawdiv')[0].clientWidth;
+        canvas.height = $('#drawdiv')[0].clientHeight;
+        redraw(world);
+      }
+
+      function redraw(world) {
+        var s = '> ';
+        for (p of world) {
+          s += p.id + ' ' + (p.move.left ? 'L' : '.' ) + (p.move.right ? 'R' : '.' ) + (p.move.fwd ? 'F' : '.' ) + (p.move.back ? 'B' : '.' ) + '; ';
+        }
+        console.log(s);;;
+        return;;;
+        ctx.moveTo(0, 0);
+        ctx.lineTo(canvas.width, canvas.height);
+        ctx.lineWidth = 10;
+        ctx.stroke();
+      }
     </script>
   </body>
 </html>

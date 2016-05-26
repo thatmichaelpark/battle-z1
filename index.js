@@ -6,41 +6,70 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
+var connections = [];
+var nextID = 0;
+var movesReceived = 0;
+
 io.on('connection', function (socket) {
-  console.log('a user connected');
-  socket.on('disconnect', function () {
-    console.log('user disconnected');
-  })
-  socket.on('servo', function (angle) {
-    servo.to(angle);
-  })
-});
-
-http.listen(3003, function () {
-  console.log('listening on *:3003');
-});
-
-
-
-var five = require("johnny-five");
-var board = new five.Board({repl: false});
-var led;
-var servo;
-
-board.on("ready", function() {
-  console.log("Ready event. Repl instance auto-initialized!");
-
-  led = new five.Led(11);
-
-  servo = new five.Servo(8);
-
-  var sensor = new five.Sensor({
-    pin: "A0",
-    freq: 20,
-    threshold: 20
+  var id = nextID++;
+  connections.push({
+    socket: socket,
+    id: id,
+    move: null
   });
-  sensor.on('change', function (d) {
-    io.emit('pot', d);
-  })
+  console.log('a user connected; # connections:', connections.length);
+  io.emit('msg', 'New connection');
+  socket.emit('assignID', id);
+  storeMove(id, {
+    left: false,
+    right: false,
+    fwd: false,
+    back: false
+  });
+  socket.on('disconnect', function () {
+    for (var i=0; i<connections.length; ++i) {
+      if (connections[i].socket === socket) {
+        connections.splice(i, 1); // remove this socket from list.
+        if (movesReceived == connections.length) {
+          flushMoves();
+        }
+        break;
+      }
+    }
+    console.log('a user disconnected; # connections:', connections.length);
+  });
 
+  socket.on('move', function (data) {
+    console.log('move from', data.id);
+    storeMove(data.id, data.move);
+  });
+  function storeMove(id, move) {
+    for (var i=0; i<connections.length; ++i) {
+      if (connections[i].id == id) {
+        connections[i].move = move;
+        console.log(movesReceived+1);
+        if (++movesReceived == connections.length) {
+          flushMoves();
+        }
+        break;
+      }
+    }
+  }
+
+  function flushMoves() {
+    var a = [];
+    for (var c of connections) {
+      a.push({
+        id: c.id,
+        move: c.move
+      })
+    }
+    movesReceived = 0;
+    console.log('flush' + '-'.repeat(Math.random()*40));
+    io.emit('update', a);
+  }
+});
+
+http.listen(3000, function () {
+  console.log('listening on *:3000');
 });
