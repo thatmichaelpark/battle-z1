@@ -31,50 +31,51 @@
     };
     var world = [];
 
-      var socket = io();
-      // $('form').submit(function () {
-      //   socket.emit('servo', $('#angle').val());
-      //   $('#m').val('');
-      //   return false;
-      // });
-      socket.on('assignID', function (myid) {
-        id = myid;
-        console.log('my id =', id);
-      });
-      socket.on('msg', function (msg) {
-        console.log(msg);
-      });
-      socket.on('update', function (data) {
-        world = data;
-        redraw(world);
-        for (var p of world) {
-          if (p.id == id) {
-            move = p.move;
-            break;
-          }
+    var socket = io();
+    // $('form').submit(function () {
+    //   socket.emit('servo', $('#angle').val());
+    //   $('#m').val('');
+    //   return false;
+    // });
+    socket.on('assignID', function (myid) {
+      id = myid;
+      // console.log('my id =', id);
+    });
+    socket.on('msg', function (msg) {
+      // console.log(msg);
+    });
+    socket.on('update', function (data) {
+      world = data;
+      redraw(world);
+      for (var p of world) {
+        if (p.id == id) {
+          move = p.move;
+          break;
         }
-        if ($('#checkbox').prop('checked')) {
-          move = +move + 1;
-        } else {
-          move = +move - 1;
-        }
-        console.log('redrawing ', id, move);
-        socket.emit('move', {
-          id: id,
-          move: move
-        });
-      })
-      // document.addEventListener('keydown', function (event) {
-      //   event.preventDefault();
-      //   key(event.code, true);
-      // });
-      //
-      // document.addEventListener('keydown', function (event) {
-      //   event.preventDefault();
-      //   key(event.code, false);
-      // });
-      //
-      // function key(keyCode, down) {
+      }
+      if ($('#checkbox').prop('checked')) {
+        move = +move + 1;
+      } else {
+        move = +move - 1;
+      }
+      // console.log('redrawing ', id, move);
+      socket.emit('move', {
+        id: id,
+        move: move
+      });
+    })
+    document.addEventListener('keydown', function (event) {
+      event.preventDefault();
+      key(event.code, true);
+    });
+
+    document.addEventListener('keyup', function (event) {
+      event.preventDefault();
+      key(event.code, false);
+    });
+
+    // function key(keyCode, down) {
+
       //   switch (keyCode) {
       //     case 'ArrowLeft':
       //       move.left ^= down;
