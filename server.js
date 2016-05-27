@@ -1,9 +1,19 @@
-var app = require('express')();
+var path = require('path');
+var express = require('express');
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/index.html');
+// app.get('/', function (req, res) {
+//   res.sendFile(__dirname + '/index.html');
+// });
+app.use(express.static(path.join('./', '')));
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
 var connections = [];
