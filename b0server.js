@@ -6,6 +6,10 @@ var io = require('socket.io')(http);
 
 app.use(express.static(path.join('./', '')));
 
+http.listen(3000, function () {
+  console.log('listening on *:3000');
+});
+
 var connections = [];
 var nextID = 0;
 var movesReceived = 0;
@@ -39,14 +43,12 @@ io.on('connection', function (socket) {
   });
 
   socket.on('move', function (data) {
-    console.log('move from', data.id, data.move);
     storeMove(data.id, data.move);
   });
   function storeMove(id, move) {
     for (var i=0; i<connections.length; ++i) {
       if (connections[i].id == id) {
         connections[i].move = move;
-        console.log(movesReceived+1);
         if (++movesReceived == connections.length) {
           flushMoves();
         }
@@ -64,11 +66,6 @@ io.on('connection', function (socket) {
       })
     }
     movesReceived = 0;
-    console.log('flush' + '-'.repeat(Math.random()*40));
     io.emit('update', a);
   }
-});
-
-http.listen(3000, function () {
-  console.log('listening on *:3000');
 });

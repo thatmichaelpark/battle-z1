@@ -39,7 +39,7 @@
     // });
     socket.on('assignID', function (myid) {
       id = myid;
-      // console.log('my id =', id);
+      console.log('my id =', id);
     });
     socket.on('msg', function (msg) {
       // console.log(msg);
@@ -112,7 +112,6 @@
           // s += p.id + ' ' + (p.move.left ? 'L' : '.' ) + (p.move.right ? 'R' : '.' ) + (p.move.fwd ? 'F' : '.' ) + (p.move.back ? 'B' : '.' ) + '; ';
           s += p.id + ' ' + p.move + '; ';
         }
-        console.log(s);;;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.font = '60px serif';
         var x = 200;
