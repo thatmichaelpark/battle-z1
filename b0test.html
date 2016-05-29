@@ -5,9 +5,14 @@
     <title>B0 Test</title>
 
     <style>
+      .fixedaspectratio {
+        position: relative;
+        width: 100%;
+        padding-bottom: 33.3%;
+      }
       #drawdiv {
         position: absolute;
-        top: 2rem;
+        top: 0;
         right: 0;
         bottom: 0;
         left: 0;
@@ -16,8 +21,10 @@
 
   </head>
   <body>
-    <div id="drawdiv">
-      <canvas id="canvas"></canvas>
+    <div class="fixedaspectratio">
+      <div id="drawdiv">
+        <canvas id="canvas"></canvas>
+      </div>
     </div>
     <script src="shapedata.js"></script>
     <script src="b0test.js"></script>

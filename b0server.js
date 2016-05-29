@@ -4,17 +4,7 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-// app.get('/', function (req, res) {
-//   res.sendFile(__dirname + '/index.html');
-// });
 app.use(express.static(path.join('./', '')));
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
-});
 
 var connections = [];
 var nextID = 0;
@@ -31,10 +21,9 @@ io.on('connection', function (socket) {
   io.emit('msg', 'New connection');
   socket.emit('assignID', id);
   storeMove(id, {
-    left: false,
-    right: false,
-    fwd: false,
-    back: false
+    left: 0,
+    right: 0,
+    fire: false
   });
   socket.on('disconnect', function () {
     for (var i=0; i<connections.length; ++i) {
@@ -75,7 +64,7 @@ io.on('connection', function (socket) {
       })
     }
     movesReceived = 0;
-    console.log('flush' + '-'.repeat(Math.random()*40+20));
+    console.log('flush' + '-'.repeat(Math.random()*40));
     io.emit('update', a);
   }
 });

@@ -1,0 +1,12 @@
+Server broadcasts state of entire world.
+
+State: [thing0, thing1, thing2...]
+
+thing: {
+  type: 'tank' | 'bullet' | 'cube' etc
+  x: #
+  y: #
+  h: #
+  color: 'green' | #xxxxxx
+  state: moving, firing, hit, dead
+}

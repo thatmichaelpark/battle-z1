@@ -45,24 +45,43 @@ function redraw() {
   ctx.save();
   ctx.translate(canvas.width/2, canvas.height/2);
 
-  var dy = 500;
-  var dx = 0;
+  var eye = {
+    x: 210,
+    y: 0,
+    h: 10
+  };
+  draw(ctx, eye, {type: 'tank', x: 500, y: 0, h: 90, color: 'green'});
+  draw(ctx, eye, {type: 'cube', x: 500, y: -200, h: 0, color: 'yellow'});
+  draw(ctx, eye, {type: 'halfcube', x: 500, y: 200, h: 0, color: 'red'});
+  draw(ctx, eye, {type: 'pyramid', x: 500, y: 400, h: 0, color: 'cyan'});
+  draw(ctx, eye, {type: 'bullet', x: 500, y: 500, h: 90, color: 'blue'});
+  ctx.restore();
+}
+
+function draw(ctx, eye, thing) {
+  var c = rotate(thing.x - eye.x, thing.y - eye.y, -eye.h);
+  if (Math.abs(c.x) < Math.abs(c.y)) {  // Don't draw objects outside 90deg field of view.
+    return;
+  }
   var txs = [];
   var tys = [];
-  for (var p of tankPts) {
-    var rot = rotate(p.x, p.y, -45);
-    var x = rot.x;
-    var y = rot.y;
+  var shape = shapes[thing.type];
+  for (var p of shape.pts) {
+    var rot = rotate(p.x, p.y, thing.h - eye.h);
+    var x = rot.x + c.x;
+    var y = rot.y + c.y;
     var z = p.z - 60;
-    var w = 1000 / (dy + y);
-    txs.push(x * w);
-    tys.push(z * -w);
+    var w = -canvas.width * 0.6 / x;  // -ve because y & z
+    txs.push(y * w);
+    tys.push(z * w);
   }
-  ctx.strokeStyle = 'green';
-  for (var l of tankLines) {
+  ctx.beginPath();
+  ctx.strokeStyle = thing.color;
+  ctx.lineWidth = 2;
+  for (var l of shape.lines) {
     ctx.moveTo(txs[l.start], tys[l.start]);
     ctx.lineTo(txs[l.end], tys[l.end]);
   }
   ctx.stroke();
-  ctx.restore();
+  ctx.closePath();
 }
