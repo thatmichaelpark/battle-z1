@@ -10,3 +10,5 @@ thing: {
   color: 'green' | #xxxxxx
   state: moving, firing, hit, dead
 }
+
+socket.id -> playerId (incoming move on socket get assigned to correct player)

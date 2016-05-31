@@ -10,62 +10,62 @@ http.listen(3000, function () {
   console.log('listening on *:3000');
 });
 
-var connections = [];
+var connections = {};
+var players = {};
+var pids = [];
 var nextID = 0;
 var movesReceived = 0;
 
+function createID() {
+  // IDs are of the form Player# (just to remind me that they are strings).
+  return 'Player' + nextID++;
+}
+
 io.on('connection', function (socket) {
-  var id = nextID++;
-  connections.push({
-    socket: socket,
-    id: id,
-    move: null
-  });
-  console.log('a user connected; # connections:', connections.length);
+  var player = {id: createID()};
+  pids.push(player.id);
+  players[player.id] = player;
+
+  connections[socket.id] = player;
+  console.log('a user connected; # players:', pids.length);
   io.emit('msg', 'New connection');
-  socket.emit('assignID', id);
-  storeMove(id, {
+  socket.emit('assignID', player.id);
+  storeMove(player, {
     left: 0,
     right: 0,
     fire: false
   });
   socket.on('disconnect', function () {
-    for (var i=0; i<connections.length; ++i) {
-      if (connections[i].socket === socket) {
-        connections.splice(i, 1); // remove this socket from list.
-        if (movesReceived == connections.length) {
-          flushMoves();
-        }
-        break;
-      }
+    var player = connections[socket.id];
+    console.log(player);
+    delete connections[socket.id];  // Remove this socket.
+    console.log(pids);
+    console.log(connections);
+    console.log(players);
+    pids.splice(pids.indexOf(player.id));
+    delete players[player.id];
+    console.log('a user disconnected; # players:', pids.length);
+    if (movesReceived == pids.length) {
+      flushMoves();
     }
-    console.log('a user disconnected; # connections:', connections.length);
   });
 
   socket.on('move', function (data) {
-    storeMove(data.id, data.move);
+    storeMove(players[data.id], data.move);
   });
-  function storeMove(id, move) {
-    for (var i=0; i<connections.length; ++i) {
-      if (connections[i].id == id) {
-        connections[i].move = move;
-        if (++movesReceived == connections.length) {
-          flushMoves();
-        }
-        break;
-      }
+  function storeMove(player, move) {
+    player.move = move;
+    if (++movesReceived == pids.length) {
+      flushMoves();
     }
   }
 
   function flushMoves() {
-    var a = [];
-    for (var c of connections) {
-      a.push({
-        id: c.id,
-        move: c.move
-      })
-    }
     movesReceived = 0;
+    var a = [];
+    for (var pid of pids) {
+      a.push(players[pid]);
+    }
     io.emit('update', a);
   }
 });
