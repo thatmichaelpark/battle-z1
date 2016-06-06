@@ -1,9 +1,9 @@
 Server broadcasts state of entire world.
 
-State: [thing0, thing1, thing2...]
+Each client sees State: [thing0, thing1, thing2...]
 
 thing: {
-  type: 'tank' | 'bullet' | 'cube' etc
+  type: 'tank' | 'bullet' | 'cube' | 'halfcube' | 'pyramid'
   x: #
   y: #
   h: #
@@ -11,4 +11,6 @@ thing: {
   state: moving, firing, hit, dead
 }
 
-socket.id -> playerId (incoming move on socket get assigned to correct player)
+Server side:
+
+socket.id -> playerId (so incoming move on socket gets assigned to correct player)
