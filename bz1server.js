@@ -3,6 +3,7 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+const BZ1 = require('./bz1.js');
 
 app.use(express.static(path.join('./', '')));
 
@@ -47,7 +48,7 @@ function initEventHandlers() {
       delete players[player.id];
       console.log('a user disconnected; # players:', pids.length);
       if (movesReceived == pids.length) {
-        updateWorld();
+        broadcastStateOfTheWorld();
       }
     });
 
@@ -57,25 +58,17 @@ function initEventHandlers() {
     function storeMove(player, move) {
       player.move = move;
       if (++movesReceived == pids.length) {
-        updateWorld();
+        broadcastStateOfTheWorld();
       }
     }
   });
 }
 
-var obstacles = [];     // Cubes, halfcubes, pyramids.
-var bullets = [];
-var tanks = [];
 
-function updateWorld() {
+function broadcastStateOfTheWorld() {
   movesReceived = 0;
-  var a = [];
-  for (var pid of pids) {
-    a.push(players[pid]);
-  }
-  io.emit('update', a);
+  io.emit('update', BZ1.world);
 }
 
-createWorld();
-console.log(obstacles);
+BZ1.world.create();
 initEventHandlers();
