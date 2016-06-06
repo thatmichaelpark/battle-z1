@@ -16,6 +16,21 @@ Screen coordinates
 
 
 */
+var socket = io();
+
+var playerId;
+var world = [];
+
+socket.on('assignID', function (data) {
+  playerId = data;
+  console.log(playerId);
+});
+
+socket.on('stateOfTheWorld', function (data) {
+  world = data;
+  redraw();
+  socket.emit('move', {id: playerId, move: 0});
+});
 
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
@@ -38,6 +53,8 @@ function rotate(x, y, degrees) {
   return {x: rx, y: ry};
 }
 
+var heading = 0;
+
 function redraw() {
 
   // ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -45,22 +62,22 @@ function redraw() {
   ctx.save();
   ctx.translate(canvas.width/2, canvas.height/2);
 
+console.log(heading);
   var eye = {
-    x: 210,
+    x: 0,
     y: 0,
-    h: 10
+    h: heading += 0.1
   };
-  draw(ctx, eye, {type: 'tank', x: 500, y: 0, h: 90, color: 'green'});
-  draw(ctx, eye, {type: 'cube', x: 500, y: -200, h: 0, color: 'yellow'});
-  draw(ctx, eye, {type: 'halfcube', x: 500, y: 200, h: 0, color: 'red'});
-  draw(ctx, eye, {type: 'pyramid', x: 500, y: 400, h: 0, color: 'cyan'});
-  draw(ctx, eye, {type: 'bullet', x: 500, y: 500, h: 90, color: 'blue'});
+  console.log(heading);
+  for (const obj of world) {
+    draw(ctx, eye, obj);
+  }
   ctx.restore();
 }
 
 function draw(ctx, eye, thing) {
   var c = rotate(thing.x - eye.x, thing.y - eye.y, -eye.h);
-  if (Math.abs(c.x) < Math.abs(c.y)) {  // Don't draw objects outside 90deg field of view.
+  if (c.x < 0 || Math.abs(c.x) < Math.abs(c.y)) {  // Don't draw objects outside 90deg field of view.
     return;
   }
   var txs = [];
@@ -76,7 +93,7 @@ function draw(ctx, eye, thing) {
     tys.push(z * w);
   }
   ctx.beginPath();
-  ctx.strokeStyle = thing.color;
+  ctx.strokeStyle = 'green';
   ctx.lineWidth = 2;
   for (var l of shape.lines) {
     ctx.moveTo(txs[l.start], tys[l.start]);

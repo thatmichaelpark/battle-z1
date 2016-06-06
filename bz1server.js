@@ -30,8 +30,8 @@ function initEventHandlers() {
 
     connections[socket.id] = player;
     console.log('a user connected; # players:', pids.length);
-    io.emit('msg', 'New connection');
     socket.emit('assignID', player.id);
+    BZ1.world.createTank(player.id);
     storeMove(player, {
       left: 0,
       right: 0,
@@ -67,7 +67,7 @@ function initEventHandlers() {
 
 function broadcastStateOfTheWorld() {
   movesReceived = 0;
-  io.emit('update', BZ1.world);
+  io.emit('stateOfTheWorld', BZ1.world);
 }
 
 BZ1.world.create();

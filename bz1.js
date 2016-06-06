@@ -58,7 +58,7 @@ BZ1.Bullet.prototype.constructor = BZ1.Bullet;
 
 // World ----------------------------------------------------------------------
 
-const nObstacles = 15;
+const nObstacles = 5;
 const worldSpan = 10000;  // Objects are created inside square centered on origin with sides of length worldSpan.
 const minDistance = 1000; // Objects are created at least minDistance away from other objects.
 
