@@ -13,6 +13,10 @@ BZ1.Obj = function (x, y, h, type, id, hitRadius, collisionRadius) {
   this.timer = 0;
 };
 
+BZ1.Obj.prototype.tick = function (dt) {
+  // Do nada.
+};
+
 // Obstacle -------------------------------------------------------------------
 
 BZ1.Obstacle = function (x, y, type) {
@@ -27,20 +31,18 @@ BZ1.Obstacle = function (x, y, type) {
 
 BZ1.Obstacle.prototype = Object.create(BZ1.Obj.prototype);
 BZ1.Obstacle.prototype.constructor = BZ1.Obstacle;
-BZ1.Obstacle.prototype.tick = function (dt) {
-  console.log(this.type, 'tick');
-};
 
 // Tank -----------------------------------------------------------------------
 
 BZ1.Tank = function (x, y, h, id) {
   BZ1.Obj.call(this, x, y, h, 'tank', id, 35, 200);
+  this.move = {left: false, right: true, fwd: true, rev: false, fire: true};
 };
 
 BZ1.Tank.prototype = Object.create(BZ1.Obj.prototype);
 BZ1.Tank.prototype.constructor = BZ1.Tank;
 BZ1.Tank.prototype.tick = function (dt) {
-  console.log('tank tick');
+  console.log('tank', dt);
 };
 
 // Bullet ---------------------------------------------------------------------
@@ -51,9 +53,6 @@ BZ1.Bullet = function (x, y, h, id) {
 
 BZ1.Bullet.prototype = Object.create(BZ1.Obj.prototype);
 BZ1.Bullet.prototype.constructor = BZ1.Bullet;
-BZ1.Bullet.prototype.tick = function (dt) {
-  console.log('bullet tick');
-};
 
 // World ----------------------------------------------------------------------
 
@@ -109,12 +108,10 @@ BZ1.world.createBullet = function (x, y, h, playerId) {
   this.push(bullet);
 };
 
-console.log('ok');
-console.log(BZ1.world.findLonelyPoint());
 BZ1.world.create();
 BZ1.world.createTank('Player0');
 BZ1.world.createTank('Player1');
 BZ1.world.createBullet(BZ1.tanks['Player1'].x, BZ1.tanks['Player1'].y, BZ1.tanks['Player1'].h, 'Player1');
-BZ1.world.splice(BZ1.world.indexOf(BZ1.tanks['Player0']), 1);
-console.log(BZ1.world);
-console.log(BZ1.tanks);
+BZ1.world.forEach((obj) => {
+  obj.tick(1);
+});
