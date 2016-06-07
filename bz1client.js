@@ -139,7 +139,7 @@ function draw(ctx, eye, thing) {
     var x = rot.x + c.x;
     var y = rot.y + c.y;
     var z = p.z - 60;
-    var w = -canvas.width * 0.6 / x;  // -ve because y & z
+    var w = -canvas.width / x;  // -ve because y & z
     txs.push(y * w);
     tys.push(z * w);
   }
