@@ -103,7 +103,7 @@ BZ1.Bullet.prototype.constructor = BZ1.Bullet;
 // World ----------------------------------------------------------------------
 
 const nObstacles = 20;
-const worldSpan = 6000;  // Objects are created inside square centered on origin with sides of length worldSpan.
+const worldSpan = 7000;  // Objects are created inside square centered on origin with sides of length worldSpan.
 const minDistance = 1000; // Objects are created at least minDistance away from other objects.
 
 BZ1.world = [];
@@ -149,7 +149,7 @@ BZ1.world.findLonelyPoint = function () {
   do {
     x = worldSpan * (Math.random() - 0.5);
     y = worldSpan * (Math.random() - 0.5);
-  } while (tooClose(x, y));
+  } while (tooClose.call(this, x, y));
   return {x: x, y: y};
 };
 
