@@ -29,7 +29,7 @@ function initEventHandlers() {
     players[player.id] = player;
 
     connections[socket.id] = player;
-    console.log('a user connected; # players:', pids.length);
+    console.log(player.id, 'connected; # players:', pids.length);
     socket.emit('assignID', player.id);
     BZ1.world.createTank(player.id);
     storeMove(player.id, {

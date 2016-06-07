@@ -39,41 +39,49 @@ socket.on('stateOfTheWorld', function (data) {
   socket.emit('move', {id: playerId, move: move});
 });
 
+const arrowLeft = 37;
+const arrowUp = 38;
+const arrowRight = 39;
+const arrowDown = 40;
+const space = 32;
+
 $('body').on('keydown', (event) => {
-  switch (event.key) {
-    case 'ArrowLeft':
+  console.log('keydown', event.which);
+  switch (event.which) {
+    case arrowLeft:
       move.left = true;
       break;
-    case 'ArrowRight':
+    case arrowRight:
       move.right = true;
       break;
-    case 'ArrowUp':
+    case arrowUp:
       move.fwd = true;
       break;
-    case 'ArrowDown':
+    case arrowDown:
       move.rev = true;
       break;
-    case ' ':
+    case space:
       move.fire = true;
       break;
   }
 });
 
 $('body').on('keyup', (event) => {
-  switch (event.key) {
-    case 'ArrowLeft':
+  console.log('keyup', event.which);
+  switch (event.which) {
+    case arrowLeft:
       move.left = false;
       break;
-    case 'ArrowRight':
+    case arrowRight:
       move.right = false;
       break;
-    case 'ArrowUp':
+    case arrowUp:
       move.fwd = false;
       break;
-    case 'ArrowDown':
+    case arrowDown:
       move.rev = false;
       break;
-    case ' ':
+    case space:
       move.fire = false;
       break;
   }
