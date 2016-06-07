@@ -30,7 +30,7 @@ const move = {
 
 socket.on('assignID', function (data) {
   playerId = data;
-  console.log(playerId);
+  $('#playerid').text(playerId);
 });
 
 socket.on('stateOfTheWorld', function (data) {
@@ -105,13 +105,14 @@ function redraw() {
   // ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.save();
-  ctx.translate(canvas.width/2, canvas.height/2);
+  ctx.translate(canvas.width/2, canvas.height * 0.66);
 
   var eye = {
     x: 0,
     y: 0,
     h: 0
   };
+
   for (const obj of world) {
     if (obj.id === playerId) {
       eye.x = obj.x;
@@ -120,10 +121,53 @@ function redraw() {
       break;
     }
   }
+  drawBkgd(ctx, eye.h);
   for (const obj of world) {
     draw(ctx, eye, obj);
   }
   ctx.restore();
+}
+
+function x4m(a, h) {
+	h %= 360;
+  a = a / 1600 * 360;
+	let x = ((h - a + 360) % 360) / 45;
+  if (x >= 4) {
+    x -= 8;
+  }
+  return x;
+}
+
+function drawBkgd(ctx, h) {
+  ctx.beginPath();
+  ctx.strokeStyle = '#050';
+  ctx.lineWidth = 2;
+  ctx.moveTo(-canvas.width/2, 0);
+  ctx.lineTo(canvas.width/2, 0);
+
+  const scaleX = canvas.width * 0.8;
+  const scaleY = -8;
+
+  let prevX;
+  let prevY;
+  for (const pt of rawBkgdData) {
+    var x = x4m(pt[0], h);
+    var y = pt[1];
+    if (y < 0) {
+      y = -y;
+    } else {
+      if (prevX > -1 && prevX < 1 && x > -1 && x < 1) {
+        ctx.moveTo(prevX * scaleX, prevY * scaleY);
+        ctx.lineTo(x * scaleX, y * scaleY);
+      }
+    }
+    prevX = x;
+    prevY = y;
+  }
+  ctx.closePath();
+  ctx.stroke();
+
+
 }
 
 function draw(ctx, eye, thing) {
