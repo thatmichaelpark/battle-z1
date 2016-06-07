@@ -154,7 +154,7 @@ function drawBkgd(ctx, h) {
   ctx.lineTo(canvas.width/2, 0);
 
   const scaleX = canvas.width * 0.8;
-  const scaleY = -8;
+  const scaleY = -canvas.width * 0.007;
 
   let prevX;
   let prevY;
