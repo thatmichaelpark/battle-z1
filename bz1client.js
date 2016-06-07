@@ -20,6 +20,13 @@ var socket = io();
 
 var playerId;
 var world = [];
+const move = {
+  left: false,
+  right: false,
+  fwd: false,
+  rev: false,
+  fire: false
+};
 
 socket.on('assignID', function (data) {
   playerId = data;
@@ -29,7 +36,47 @@ socket.on('assignID', function (data) {
 socket.on('stateOfTheWorld', function (data) {
   world = data;
   redraw();
-  socket.emit('move', {id: playerId, move: 0});
+  socket.emit('move', {id: playerId, move: move});
+});
+
+$('body').on('keydown', (event) => {
+  switch (event.key) {
+    case 'ArrowLeft':
+      move.left = true;
+      break;
+    case 'ArrowRight':
+      move.right = true;
+      break;
+    case 'ArrowUp':
+      move.fwd = true;
+      break;
+    case 'ArrowDown':
+      move.rev = true;
+      break;
+    case ' ':
+      move.fire = true;
+      break;
+  }
+});
+
+$('body').on('keyup', (event) => {
+  switch (event.key) {
+    case 'ArrowLeft':
+      move.left = false;
+      break;
+    case 'ArrowRight':
+      move.right = false;
+      break;
+    case 'ArrowUp':
+      move.fwd = false;
+      break;
+    case 'ArrowDown':
+      move.rev = false;
+      break;
+    case ' ':
+      move.fire = false;
+      break;
+  }
 });
 
 var canvas = document.getElementById('canvas');
@@ -53,8 +100,6 @@ function rotate(x, y, degrees) {
   return {x: rx, y: ry};
 }
 
-var heading = 0;
-
 function redraw() {
 
   // ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -62,13 +107,19 @@ function redraw() {
   ctx.save();
   ctx.translate(canvas.width/2, canvas.height/2);
 
-console.log(heading);
   var eye = {
     x: 0,
     y: 0,
-    h: heading += 0.1
+    h: 0
   };
-  console.log(heading);
+  for (const obj of world) {
+    if (obj.id === playerId) {
+      eye.x = obj.x;
+      eye.y = obj.y;
+      eye.h = obj.h;
+      break;
+    }
+  }
   for (const obj of world) {
     draw(ctx, eye, obj);
   }
@@ -77,7 +128,7 @@ console.log(heading);
 
 function draw(ctx, eye, thing) {
   var c = rotate(thing.x - eye.x, thing.y - eye.y, -eye.h);
-  if (c.x < 0 || Math.abs(c.x) < Math.abs(c.y)) {  // Don't draw objects outside 90deg field of view.
+  if (c.x < 0 || c.x <= Math.abs(c.y)) {  // Don't draw objects outside 90deg field of view.
     return;
   }
   var txs = [];

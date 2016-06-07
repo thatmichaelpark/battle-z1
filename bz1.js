@@ -38,13 +38,37 @@ BZ1.Obstacle.prototype.constructor = BZ1.Obstacle;
 
 BZ1.Tank = function (x, y, h, id) {
   BZ1.Obj.call(this, x, y, h, 'tank', id, 35, 200);
-  this.move = {left: false, right: true, fwd: true, rev: false, fire: true};
+  this.move = {left: false, right: true, fwd: false, rev: false, fire: true};
 };
 
 BZ1.Tank.prototype = Object.create(BZ1.Obj.prototype);
 BZ1.Tank.prototype.constructor = BZ1.Tank;
 BZ1.Tank.prototype.tick = function (dt) {
-  console.log('tank', dt);
+  const v_s = 300;   // units/s
+  const bv_s = 300;  // units/s for bullet sub-step (10 sub-steps per tank step)
+  const h_s = 30;    // degrees/s
+
+  const v = v_s * dt;
+  const bv = bv_s * dt;
+  const h = h_s * dt;
+
+  if (this.move.left) {
+    this.h += h;
+  }
+  if (this.move.right) {
+    this.h -= h;
+  }
+  const rad = this.h / 180 * Math.PI;
+  const dx = v * Math.cos(rad);
+  const dy = v * Math.sin(rad);
+  if (this.move.fwd) {
+    this.x += dx;
+    this.y += dy;
+  }
+  if (this.move.rev) {
+    this.x -= dx;
+    this.y -= dy;
+  }
 };
 
 // Bullet ---------------------------------------------------------------------
@@ -58,8 +82,8 @@ BZ1.Bullet.prototype.constructor = BZ1.Bullet;
 
 // World ----------------------------------------------------------------------
 
-const nObstacles = 5;
-const worldSpan = 10000;  // Objects are created inside square centered on origin with sides of length worldSpan.
+const nObstacles = 15;
+const worldSpan = 6000;  // Objects are created inside square centered on origin with sides of length worldSpan.
 const minDistance = 1000; // Objects are created at least minDistance away from other objects.
 
 BZ1.world = [];
@@ -108,6 +132,12 @@ BZ1.world.createTank = function (playerId) {
 BZ1.world.createBullet = function (x, y, h, playerId) {
   const bullet = new BZ1.Bullet(x, y, h, playerId);
   this.push(bullet);
+};
+
+BZ1.world.update = function (dt) {
+  this.forEach(function (obj) {
+    obj.tick(dt);
+  })
 };
 
 module.exports = BZ1;

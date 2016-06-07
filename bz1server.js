@@ -32,7 +32,7 @@ function initEventHandlers() {
     console.log('a user connected; # players:', pids.length);
     socket.emit('assignID', player.id);
     BZ1.world.createTank(player.id);
-    storeMove(player, {
+    storeMove(player.id, {
       left: 0,
       right: 0,
       fire: false
@@ -48,24 +48,32 @@ function initEventHandlers() {
       delete players[player.id];
       console.log('a user disconnected; # players:', pids.length);
       if (movesReceived == pids.length) {
-        broadcastStateOfTheWorld();
+        updateWorld();
       }
     });
 
     socket.on('move', function (data) {
-      storeMove(players[data.id], data.move);
+      storeMove(data.id, data.move);
     });
-    function storeMove(player, move) {
-      player.move = move;
+
+    function storeMove(playerId, move) {
+      BZ1.tanks[playerId].move = move;
       if (++movesReceived == pids.length) {
-        broadcastStateOfTheWorld();
+        updateWorld();
       }
     }
   });
 }
 
+let t0;
 
-function broadcastStateOfTheWorld() {
+function updateWorld() {
+  const t = Date.now();
+  t0 = t0 || t;
+  const dt = t - t0;
+  t0 = t;
+  BZ1.world.update(dt / 1000); // update expects seconds, not ms.
+
   movesReceived = 0;
   io.emit('stateOfTheWorld', BZ1.world);
 }
