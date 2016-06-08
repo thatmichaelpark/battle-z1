@@ -7,8 +7,7 @@ thing: {
   x: #
   y: #
   h: #
-  color: 'green' | #xxxxxx
-  state: moving, firing, hit, dead
+  state: normal, hit, dead
 }
 
 Server side:
@@ -17,8 +16,6 @@ socket.id -> playerId (so incoming move on socket gets assigned to correct playe
 
 
 to do:
-add dt to world state (so clients can animate volcano)
-GBOF
-remove players on disconnection
 analog controls
 health/death/scoring
+calming screen?
