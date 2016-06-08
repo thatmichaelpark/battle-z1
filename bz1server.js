@@ -39,7 +39,8 @@ function initEventHandlers() {
     });
     socket.on('disconnect', function () {
       var playerId = connections[socket.id];
-      delete connections[socket.id];  // Remove this socket.
+      delete connections[socket.id];    // Remove this socket.
+      BZ1.world.delete(BZ1.tanks[playerId]);  // Remove this tank from the world.
       console.log('---', playerId, 'disconnected; # players:', Object.keys(connections).length);
       console.log(connections);
       console.log();
