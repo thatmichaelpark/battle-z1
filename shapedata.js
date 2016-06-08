@@ -89,3 +89,14 @@ var rawBkgdData = [
   [1500, -0.01], [1511, 14], [1525, 18], [1540, 0],
   [1537, -4], [1555, 8], [1560, 4], [1600, 0],
 ];
+
+const GBOFs = [
+  {x: 0, y: 2, vx: (Math.random() - 0.5) * 10, vy: 5 + Math.random() * 5, limit: -5 - Math.random() * 5},
+  {x: 0, y: 2, vx: (Math.random() - 0.5) * 10, vy: 5 + Math.random() * 5, limit: -5 - Math.random() * 5},
+  {x: 0, y: 2, vx: (Math.random() - 0.5) * 10, vy: 5 + Math.random() * 5, limit: -5 - Math.random() * 5},
+  {x: 0, y: 2, vx: (Math.random() - 0.5) * 10, vy: 5 + Math.random() * 5, limit: -5 - Math.random() * 5},
+  {x: 0, y: 2, vx: (Math.random() - 0.5) * 10, vy: 5 + Math.random() * 5, limit: -5 - Math.random() * 5},
+  {x: 0, y: 2, vx: (Math.random() - 0.5) * 10, vy: 5 + Math.random() * 5, limit: -5 - Math.random() * 5},
+  {x: 0, y: 2, vx: (Math.random() - 0.5) * 10, vy: 5 + Math.random() * 5, limit: -5 - Math.random() * 5},
+  {x: 0, y: 2, vx: (Math.random() - 0.5) * 10, vy: 5 + Math.random() * 5, limit: -5 - Math.random() * 5}
+];

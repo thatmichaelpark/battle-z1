@@ -70,12 +70,13 @@ let t0;
 function updateWorld() {
   const t = Date.now();
   t0 = t0 || t;
-  const dt = t - t0;
+  const dt = (t - t0) / 1000; // in seconds, not ms
   t0 = t;
-  BZ1.world.update(dt / 1000); // update expects seconds, not ms.
+
+  BZ1.world.update(dt);
 
   movesReceived = 0;
-  io.emit('stateOfTheWorld', BZ1.world);
+  io.emit('stateOfTheWorld', {world: BZ1.world, dt: dt});
 }
 
 BZ1.world.create();

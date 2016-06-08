@@ -27,6 +27,7 @@ const move = {
   rev: false,
   fire: false
 };
+let dt = 0;
 
 socket.on('assignID', function (data) {
   playerId = data;
@@ -34,7 +35,8 @@ socket.on('assignID', function (data) {
 });
 
 socket.on('stateOfTheWorld', function (data) {
-  world = data;
+  world = data.world;
+  dt = data.dt;
   redraw();
   socket.emit('move', {id: playerId, move: move});
 });
@@ -155,6 +157,25 @@ function x4m(a, h) {
   return x;
 }
 
+function drawGBOFs(ctx, h, scaleX, scaleY) {
+  const accel = -8;
+  for (const gbof of GBOFs) {
+    gbof.vy += accel * dt;
+    gbof.x += gbof.vx * dt;
+    gbof.y += gbof.vy * dt;
+    if (gbof.y < gbof.limit) {
+      gbof.x = gbof.y = 0;
+      gbof.vx = (Math.random() - 0.5) * 10;
+      gbof.vy = 5 + Math.random() * 5;
+      gbof.limit = -5 - Math.random() * 5;
+    }
+    const x = x4m(1275 + gbof.x, h) * scaleX;
+    const y = (12 + gbof.y) * scaleY;
+    ctx.fillStyle = 'green';
+    ctx.fillRect(x-2, y-2, 4, 4);
+  }
+}
+
 function drawBkgd(ctx, h) {
   ctx.beginPath();
   ctx.strokeStyle = '#050';
@@ -183,6 +204,8 @@ function drawBkgd(ctx, h) {
   }
   ctx.closePath();
   ctx.stroke();
+
+  drawGBOFs(ctx, h, scaleX, scaleY);
 }
 
 function draw(ctx, eye, thing) {
