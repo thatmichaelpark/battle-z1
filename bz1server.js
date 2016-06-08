@@ -1,3 +1,5 @@
+'use strict'
+
 var path = require('path');
 var express = require('express');
 var app = express();
@@ -11,9 +13,7 @@ http.listen(3000, function () {
   console.log('listening on *:3000');
 });
 
-var connections = {};
-var players = {};
-var pids = [];
+const connections = {};
 var nextID = 0;
 var movesReceived = 0;
 
@@ -24,30 +24,26 @@ function initEventHandlers() {
   }
 
   io.on('connection', function (socket) {
-    var player = {id: createID()};
-    pids.push(player.id);
-    players[player.id] = player;
+    var playerId = createID();
 
-    connections[socket.id] = player;
-    console.log(player.id, 'connected; # players:', pids.length);
-    socket.emit('assignID', player.id);
-    BZ1.world.createTank(player.id);
-    storeMove(player.id, {
+    connections[socket.id] = playerId;
+    console.log('+++', playerId, 'connected; # players:', Object.keys(connections).length);
+    console.log(connections);
+    console.log();
+    socket.emit('assignID', playerId);
+    BZ1.world.createTank(playerId);
+    storeMove(playerId, {
       left: 0,
       right: 0,
       fire: false
     });
     socket.on('disconnect', function () {
-      var player = connections[socket.id];
-      console.log(player);
+      var playerId = connections[socket.id];
       delete connections[socket.id];  // Remove this socket.
-      console.log(pids);
+      console.log('---', playerId, 'disconnected; # players:', Object.keys(connections).length);
       console.log(connections);
-      console.log(players);
-      pids.splice(pids.indexOf(player.id));
-      delete players[player.id];
-      console.log('a user disconnected; # players:', pids.length);
-      if (movesReceived == pids.length) {
+      console.log();
+      if (movesReceived == Object.keys(connections).length) {
         updateWorld();
       }
     });
@@ -58,7 +54,7 @@ function initEventHandlers() {
 
     function storeMove(playerId, move) {
       BZ1.tanks[playerId].move = move;
-      if (++movesReceived == pids.length) {
+      if (++movesReceived == Object.keys(connections).length) {
         updateWorld();
       }
     }
