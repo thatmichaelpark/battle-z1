@@ -19,6 +19,7 @@ BZ1.Obj.prototype.tick = function (dt) {
 };
 
 // Obstacle -------------------------------------------------------------------
+const hitTime = 0.5;
 
 BZ1.Obstacle = function (x, y, type) {
 // Allowed values for type: 'cube', 'halfcube', or 'pyramid'
@@ -28,10 +29,24 @@ BZ1.Obstacle = function (x, y, type) {
     pyramid: 25
   }[type];
   BZ1.Obj.call(this, x, y, 0, type, null, hitRadius, 150);
+  this.timer = 0; // 0 => normal; > 0 => hit, time left until normal again.
 };
 
 BZ1.Obstacle.prototype = Object.create(BZ1.Obj.prototype);
 BZ1.Obstacle.prototype.constructor = BZ1.Obstacle;
+BZ1.Obstacle.prototype.tick = function (dt) {
+  if (this.timer) {
+    this.timer -= dt;
+    if (this.timer <= 0) {
+      this.timer = 0;
+      this.state = 'normal';
+    }
+  }
+};
+BZ1.Obstacle.prototype.hit = function (obj) {
+    this.state = 'hit';
+    this.timer = hitTime;
+};
 
 // Tank -----------------------------------------------------------------------
 
@@ -111,8 +126,9 @@ BZ1.Bullet.prototype.tick = function (dt) {
   for (i = 0; i < 10; ++i) {
     this.x += dx;
     this.y += dy;
-    const collision = BZ1.world.isColliding(this);
+    const collision = BZ1.world.hitTest(this);
     if (collision && collision.id !== this.id) {
+      collision.hit(this);
       BZ1.world.delete(this);
       return;
     }
@@ -199,16 +215,33 @@ BZ1.world.update = function (dt) {
   BZ1.objectsToDelete = [];
 };
 
-BZ1.world.isColliding = function (movingObj) {
-// Check for collisions between movingObj and the rest of the world objects.
-// Disregard collisions between movingObj and itself.
-// Return colliding object if there is one, null otherwise.
+BZ1.world.isColliding = function (tank) {
+// Check for collisions between tank and the rest of the world objects.
+// Disregard collisions between tank and itself.
+// Return true on collision, false otherwise.
   for (let i=0; i<this.length; ++i) {
     const obj = this[i];
-    if (obj === movingObj || obj.state === 'dead') {
+    if (obj === tank || obj.state === 'dead') {
       continue;
     }
-    if (distance(obj.x, obj.y, movingObj.x, movingObj.y) < obj.collisionRadius) {
+    if (distance(obj.x, obj.y, tank.x, tank.y) < obj.collisionRadius) {
+      return true;
+    }
+  }
+  return false;
+};
+
+BZ1.world.hitTest = function (bullet) {
+// Check for hits between bullet and the rest of the world objects.
+// Disregard hits between bullet and itself.
+// Return hit object if there is one, null otherwise.
+  for (let i=0; i<this.length; ++i) {
+    const obj = this[i];
+    if (obj === bullet || obj.state === 'dead') {
+      continue;
+    }
+    if (Math.abs(obj.x - bullet.x) < obj.hitRadius &&
+        Math.abs(obj.y - bullet.y) < obj.hitRadius) {
       return obj;
     }
   }

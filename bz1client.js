@@ -194,7 +194,12 @@ function draw(ctx, eye, thing) {
     tys.push(z * w);
   }
   ctx.beginPath();
-  ctx.strokeStyle = 'green';
+  if (thing.state === 'normal') {
+    ctx.strokeStyle = 'green';
+  } else {
+    const bbb = Math.floor(Math.random() * 7) + 1;
+    ctx.strokeStyle = '#' + (bbb & 4 ? 'f' : '0') + (bbb & 2 ? 'f' : '0') + (bbb & 1 ? 'f' : '0');
+  }
   ctx.lineWidth = 2;
   for (var l of shape.lines) {
     ctx.moveTo(txs[l.start], tys[l.start]);
