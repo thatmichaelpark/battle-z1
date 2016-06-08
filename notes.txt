@@ -17,9 +17,10 @@ socket.id -> playerId (so incoming move on socket gets assigned to correct playe
 
 
 to do:
+bullets
+display hit objects
 add dt to world state (so clients can animate volcano)
 remove players on disconnection
 ignore dead objects during world update
-background mountains
-bullets
-display hit objects
+GBOF
+analog controls

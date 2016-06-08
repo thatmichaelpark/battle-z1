@@ -37,10 +37,11 @@ BZ1.Obstacle.prototype.constructor = BZ1.Obstacle;
 
 const initialHealth = 3;
 const v_s = 300;   // tank speed in units/s
-const bv_s = 300;  // bullet speed units/s for bullet sub-step (10 sub-steps per tank step)
+const bv_s = 250;  // bullet speed units/s for bullet sub-step (10 sub-steps per tank step)
 const h_s = 30;    // turn speed in degrees/s
-const reloadTime = 5;
+const reloadTime = 2;
 const reviveTime = 10;
+const bulletTime = 3;
 
 BZ1.Tank = function (x, y, h, id) {
   BZ1.Obj.call(this, x, y, h, 'tank', id, 35, 200);
@@ -48,7 +49,7 @@ BZ1.Tank = function (x, y, h, id) {
   this.score = 0;
   this.health = initialHealth;
   this.deathTimer = 0;  // 0 => alive; > 0 => time left until alive again.
-  this.firingTimer = 0; // 0 => ready to fire; > 0 => time left until ready to fire again.
+  this.reloadTimer = 0; // 0 => ready to fire; > 0 => time left until ready to fire again.
 };
 
 BZ1.Tank.prototype = Object.create(BZ1.Obj.prototype);
@@ -56,7 +57,6 @@ BZ1.Tank.prototype.constructor = BZ1.Tank;
 BZ1.Tank.prototype.tick = function (dt) {
 
   const v = v_s * dt;
-  const bv = bv_s * dt;
   const h = h_s * dt;
 
   if (this.move.left) {
@@ -82,23 +82,46 @@ BZ1.Tank.prototype.tick = function (dt) {
     this.x = x;
     this.y = y;
   }
-  if (this.firingTimer === 0) {
+  if (this.reloadTimer === 0) {
     if (this.move.fire) {
-      BZ1.world.createBullet(this);
+      BZ1.world.createBullet(this, bv_s * Math.cos(rad), bv_s * Math.sin(rad));
+      this.reloadTimer = reloadTime;
     }
   } else {
-    this.firingTimer = Math.max(this.firingTimer - dt, 0);
+    this.reloadTimer = Math.max(this.reloadTimer - dt, 0);
   }
 };
 
 // Bullet ---------------------------------------------------------------------
 
-BZ1.Bullet = function (x, y, h, id) {
+
+BZ1.Bullet = function (x, y, h, id, vx_s, vy_s) {
   BZ1.Obj.call(this, x, y, h, 'bullet', id, 0, 0);
+  this.vx_s = vx_s;
+  this.vy_s = vy_s;
+  this.timer = bulletTime;
 };
 
 BZ1.Bullet.prototype = Object.create(BZ1.Obj.prototype);
 BZ1.Bullet.prototype.constructor = BZ1.Bullet;
+BZ1.Bullet.prototype.tick = function (dt) {
+  const dx = this.vx_s * dt;
+  const dy = this.vy_s * dt;
+
+  for (i = 0; i < 10; ++i) {
+    this.x += dx;
+    this.y += dy;
+    const collision = BZ1.world.isColliding(this);
+    if (collision && collision.id !== this.id) {
+      BZ1.world.delete(this);
+      return;
+    }
+  }
+  this.timer -= dt;
+  if (this.timer <= 0) {
+     BZ1.world.delete(this);
+  }
+};
 
 // World ----------------------------------------------------------------------
 
@@ -160,8 +183,8 @@ BZ1.world.createTank = function (playerId) {
   BZ1.tanks[playerId] = tank;
 };
 
-BZ1.world.createBullet = function (tank) {
-  const bullet = new BZ1.Bullet(tank.x, tank.y, tank.h, tank.playerId);
+BZ1.world.createBullet = function (tank, vx_s, vy_s) {
+  const bullet = new BZ1.Bullet(tank.x, tank.y, tank.h, tank.id, vx_s, vy_s);
   this.push(bullet);
 };
 
@@ -173,20 +196,23 @@ BZ1.world.update = function (dt) {
   for (const obj of BZ1.objectsToDelete) {
     BZ1.world.splice(BZ1.world.indexOf(obj), 1);
   }
+  BZ1.objectsToDelete = [];
 };
 
-BZ1.world.isColliding = function (tank) {
-// Check for collisions between tank and the rest of the world objects.
+BZ1.world.isColliding = function (movingObj) {
+// Check for collisions between movingObj and the rest of the world objects.
+// Disregard collisions between movingObj and itself.
+// Return colliding object if there is one, null otherwise.
   for (let i=0; i<this.length; ++i) {
     const obj = this[i];
-    if (obj === tank || obj.state !== 'normal') {
+    if (obj === movingObj || obj.state === 'dead') {
       continue;
     }
-    if (distance(obj.x, obj.y, tank.x, tank.y) < obj.collisionRadius) {
-      return true;
+    if (distance(obj.x, obj.y, movingObj.x, movingObj.y) < obj.collisionRadius) {
+      return obj;
     }
   }
-  return false;
+  return null;
 };
 
 module.exports = BZ1;

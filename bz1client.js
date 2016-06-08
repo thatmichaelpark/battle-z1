@@ -46,7 +46,6 @@ const arrowDown = 40;
 const space = 32;
 
 $('body').on('keydown', (event) => {
-  console.log('keydown', event.which);
   switch (event.which) {
     case arrowLeft:
       move.left = true;
@@ -67,7 +66,6 @@ $('body').on('keydown', (event) => {
 });
 
 $('body').on('keyup', (event) => {
-  console.log('keyup', event.which);
   switch (event.which) {
     case arrowLeft:
       move.left = false;
