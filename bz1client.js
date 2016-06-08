@@ -106,12 +106,12 @@ function rotate(x, y, degrees) {
   return {x: rx, y: ry};
 }
 
+function randomColor() {
+  // Returns '#rgb' where r is randomly '0' or 'f' (and similarly for g and b).
+  const bbb = Math.floor(Math.random() * 7) + 1; // 3 random bits, not all 0.
+  return '#' + (bbb & 4 ? 'f' : '0') + (bbb & 2 ? 'f' : '0') + (bbb & 1 ? 'f' : '0');
+}
 function redraw() {
-
-  // ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.save();
-  ctx.translate(canvas.width/2, canvas.height * 0.66);
 
   var eye = {
     x: 0,
@@ -119,14 +119,25 @@ function redraw() {
     h: 0
   };
 
+  var bkgdColor = 'black';
+
   for (const obj of world) {
     if (obj.id === playerId) {
       eye.x = obj.x;
       eye.y = obj.y;
       eye.h = obj.h;
+      if (obj.state === 'hit') {
+        bkgdColor = randomColor();
+      }
       break;
     }
   }
+
+  ctx.fillStyle = bkgdColor;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.translate(canvas.width/2, canvas.height * 0.66);
+
   drawBkgd(ctx, eye.h);
   for (const obj of world) {
     draw(ctx, eye, obj);
@@ -172,8 +183,6 @@ function drawBkgd(ctx, h) {
   }
   ctx.closePath();
   ctx.stroke();
-
-
 }
 
 function draw(ctx, eye, thing) {
@@ -197,8 +206,7 @@ function draw(ctx, eye, thing) {
   if (thing.state === 'normal') {
     ctx.strokeStyle = 'green';
   } else {
-    const bbb = Math.floor(Math.random() * 7) + 1;
-    ctx.strokeStyle = '#' + (bbb & 4 ? 'f' : '0') + (bbb & 2 ? 'f' : '0') + (bbb & 1 ? 'f' : '0');
+    ctx.strokeStyle = randomColor();
   }
   ctx.lineWidth = 2;
   for (var l of shape.lines) {

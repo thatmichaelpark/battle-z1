@@ -65,47 +65,62 @@ BZ1.Tank = function (x, y, h, id) {
   this.health = initialHealth;
   this.deathTimer = 0;  // 0 => alive; > 0 => time left until alive again.
   this.reloadTimer = 0; // 0 => ready to fire; > 0 => time left until ready to fire again.
+  this.hitTimer = 0; // 0 => normal; > 0 => hit, time left until normal again.
 };
 
 BZ1.Tank.prototype = Object.create(BZ1.Obj.prototype);
 BZ1.Tank.prototype.constructor = BZ1.Tank;
 BZ1.Tank.prototype.tick = function (dt) {
 
-  const v = v_s * dt;
-  const h = h_s * dt;
+  if (this.state === 'normal') {
+    const v = v_s * dt;
+    const h = h_s * dt;
 
-  if (this.move.left) {
-    this.h += h;
-  }
-  if (this.move.right) {
-    this.h -= h;
-  }
-  const rad = this.h / 180 * Math.PI;
-  const dx = v * Math.cos(rad);
-  const dy = v * Math.sin(rad);
-  const x = this.x; // Save x and y in case we have to cancel the
-  const y = this.y; //  move because of a collision.
-  if (this.move.fwd) {
-    this.x += dx;
-    this.y += dy;
-  }
-  if (this.move.rev) {
-    this.x -= dx;
-    this.y -= dy;
-  }
-  if (BZ1.world.isColliding(this)) {
-    this.x = x;
-    this.y = y;
-  }
-  if (this.reloadTimer === 0) {
-    if (this.move.fire) {
-      BZ1.world.createBullet(this, bv_s * Math.cos(rad), bv_s * Math.sin(rad));
-      this.reloadTimer = reloadTime;
+    if (this.move.left) {
+      this.h += h;
     }
-  } else {
-    this.reloadTimer = Math.max(this.reloadTimer - dt, 0);
+    if (this.move.right) {
+      this.h -= h;
+    }
+    const rad = this.h / 180 * Math.PI;
+    const dx = v * Math.cos(rad);
+    const dy = v * Math.sin(rad);
+    const x = this.x; // Save x and y in case we have to cancel the
+    const y = this.y; //  move because of a collision.
+    if (this.move.fwd) {
+      this.x += dx;
+      this.y += dy;
+    }
+    if (this.move.rev) {
+      this.x -= dx;
+      this.y -= dy;
+    }
+    if (BZ1.world.isColliding(this)) {
+      this.x = x;
+      this.y = y;
+    }
+    if (this.reloadTimer === 0) {
+      if (this.move.fire) {
+        BZ1.world.createBullet(this, bv_s * Math.cos(rad), bv_s * Math.sin(rad));
+        this.reloadTimer = reloadTime;
+      }
+    } else {
+      this.reloadTimer = Math.max(this.reloadTimer - dt, 0);
+    }
+  } else if (this.state === 'hit') {
+    this.hitTimer -= dt;
+    if (this.hitTimer <= 0) {
+      this.hitTimer = 0;
+      this.state = 'normal';
+    }
   }
 };
+
+BZ1.Tank.prototype.hit = function (obj) {
+    this.state = 'hit';
+    this.hitTimer = hitTime;
+};
+
 
 // Bullet ---------------------------------------------------------------------
 
