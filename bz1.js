@@ -53,14 +53,14 @@ BZ1.Obstacle.prototype.hit = function (obj) {
 const initialHealth = 3;
 const v_s = 300;   // tank speed in units/s
 const bv_s = 250;  // bullet speed units/s for bullet sub-step (10 sub-steps per tank step)
-const h_s = 30;    // turn speed in degrees/s
+const h_s = 20;    // turn speed in degrees/s
 const reloadTime = 2;
 const reviveTime = 10;
 const bulletTime = 3;
 
 BZ1.Tank = function (x, y, h, id) {
   BZ1.Obj.call(this, x, y, h, 'tank', id, 35, 200);
-  this.move = {left: false, right: true, fwd: false, rev: false, fire: true};
+  this.move = {leftTrack: 0, rightTrack: 0, fire: true};
   this.score = 0;
   this.health = initialHealth;
   this.deathTimer = 0;  // 0 => alive; > 0 => time left until alive again.
@@ -73,28 +73,20 @@ BZ1.Tank.prototype.constructor = BZ1.Tank;
 BZ1.Tank.prototype.tick = function (dt) {
 
   if (this.state === 'normal') {
-    const v = v_s * dt;
-    const h = h_s * dt;
+    const v = v_s * dt * (this.move.rightTrack + this.move.leftTrack) / 2;
+    const h = h_s * dt * (this.move.rightTrack - this.move.leftTrack);
 
-    if (this.move.left) {
-      this.h += h;
-    }
-    if (this.move.right) {
-      this.h -= h;
-    }
+    this.h += h;
+
     const rad = this.h / 180 * Math.PI;
     const dx = v * Math.cos(rad);
     const dy = v * Math.sin(rad);
     const x = this.x; // Save x and y in case we have to cancel the
     const y = this.y; //  move because of a collision.
-    if (this.move.fwd) {
-      this.x += dx;
-      this.y += dy;
-    }
-    if (this.move.rev) {
-      this.x -= dx;
-      this.y -= dy;
-    }
+
+    this.x += dx;
+    this.y += dy;
+
     if (BZ1.world.isColliding(this)) {
       this.x = x;
       this.y = y;

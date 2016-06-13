@@ -33,8 +33,8 @@ function initEventHandlers() {
     socket.emit('assignID', playerId);
     BZ1.world.createTank(playerId);
     storeMove(playerId, {
-      left: 0,
-      right: 0,
+      leftTrack: 0,
+      rightTrack: 0,
       fire: false
     });
     socket.on('disconnect', function () {
@@ -67,6 +67,7 @@ let t0;
 function updateWorld() {
   const t = Date.now();
   t0 = t0 || t;
+  console.log('*'.repeat(t - t0));
   const dt = (t - t0) / 1000; // in seconds, not ms
   t0 = t;
 

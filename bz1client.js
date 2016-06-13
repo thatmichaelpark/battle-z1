@@ -20,14 +20,32 @@ var socket = io();
 
 var playerId;
 var world = [];
-const move = {
-  left: false,
-  right: false,
-  fwd: false,
-  rev: false,
+const moveKeys = {
+  q: false,
+  a: false,
+  p: false,
+  l: false,
   fire: false
 };
 let dt = 0;
+
+function convertKeysToMove() {
+  let left = 0;
+  if (moveKeys.q) {
+    ++left;
+  }
+  if (moveKeys.a) {
+    --left;
+  }
+  let right = 0;
+  if (moveKeys.p) {
+    ++right;
+  }
+  if (moveKeys.l) {
+    --right;
+  }
+  return {leftTrack: left, rightTrack: right, fire: moveKeys.fire};
+}
 
 socket.on('assignID', function (data) {
   playerId = data;
@@ -38,51 +56,56 @@ socket.on('stateOfTheWorld', function (data) {
   world = data.world;
   dt = data.dt;
   redraw();
-  socket.emit('move', {id: playerId, move: move});
+
+  socket.emit('move', {id: playerId, move: convertKeysToMove()});
 });
 
-const arrowLeft = 37;
-const arrowUp = 38;
-const arrowRight = 39;
-const arrowDown = 40;
+// const arrowLeft = 37;
+// const arrowUp = 38;
+// const arrowRight = 39;
+// const arrowDown = 40;
 const space = 32;
+const keyQ = 81;
+const keyA = 65;
+const keyP = 80;
+const keyL = 76;
 
 $('body').on('keydown', (event) => {
   switch (event.which) {
-    case arrowLeft:
-      move.left = true;
+    case keyQ:
+      moveKeys.q = true;
       break;
-    case arrowRight:
-      move.right = true;
+    case keyA:
+      moveKeys.a = true;
       break;
-    case arrowUp:
-      move.fwd = true;
+    case keyP:
+      moveKeys.p = true;
       break;
-    case arrowDown:
-      move.rev = true;
+    case keyL:
+      moveKeys.l = true;
       break;
     case space:
-      move.fire = true;
+      moveKeys.fire = true;
       break;
   }
 });
 
 $('body').on('keyup', (event) => {
   switch (event.which) {
-    case arrowLeft:
-      move.left = false;
+    case keyQ:
+      moveKeys.q = false;
       break;
-    case arrowRight:
-      move.right = false;
+    case keyA:
+      moveKeys.a = false;
       break;
-    case arrowUp:
-      move.fwd = false;
+    case keyP:
+      moveKeys.p = false;
       break;
-    case arrowDown:
-      move.rev = false;
+    case keyL:
+      moveKeys.l = false;
       break;
     case space:
-      move.fire = false;
+      moveKeys.fire = false;
       break;
   }
 });

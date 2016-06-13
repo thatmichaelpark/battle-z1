@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Turn Test</title>
+    <style media="screen">
+      html, body {
+        height: 100%;
+      }
+      input[type="number"] {
+        width: 3rem;
+        margin-right: 2rem;
+      }
+      .display {
+        outline: 1px solid red;
+        width: 100%;
+        top: 0;
+        height: 90%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="display">
+      <canvas id="canvas"></canvas>
+    </div>
+    <form>
+      <div class="">
+        <label for="">Speed Left: <input type="number" name="speed-left" value="0"></label>
+        <label for="">Speed Right: <input type="number" name="speed-right" value="0"></label>
+        <label for="">Width: <input type="number" name="width" value="100"></label>
+        <input type="submit" name="name" value="OK">
+      </div>
+      <div class="">
+        <label for="">Time: <input type="number" name="time" value="1"></label>
+        <label for="">Time Step: <input type="number" name="time-step" value="0.1"></label>
+      </div>
+    </form>
+    <script src="./node_modules/jquery/dist/jquery.min.js"></script>
+    <script>
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      resize();
+      window.addEventListener('resize', resize);
+
+      function resize() {
+        canvas.width = document.querySelector('.display').clientWidth;
+        canvas.height = document.querySelector('.display').clientHeight;
+        redraw();
+      }
+
+      function redraw() {
+        ctx.moveTo(0, 0);
+        ctx.lineTo(canvas.width, canvas.height);
+        ctx.stroke();
+      }
+    </script>
+  </body>
+</html>
