@@ -5,13 +5,70 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+const five = require('johnny-five');
 const BZ1 = require('./bz1.js');
 
 app.use(express.static(path.join('./', '')));
 
+var analogMove;
+
 http.listen(3000, function () {
   console.log('listening on *:3000');
 });
+
+const board = new five.Board();
+
+board.on('ready', () => {
+  const led = new five.Led(11);
+  const button = new five.Button({pin: 2, invert: true, isPullup: true});
+
+  analogMove = {leftTrack: 0, rightTrack: 0, fire: false};
+
+  button.on('down', function () {
+    analogMove.fire = true;
+    led.on();
+  });
+
+  button.on('up', function () {
+    analogMove.fire = false;
+    led.off();
+  });
+
+  var leftPot = new five.Sensor({
+    pin: "A0",
+    freq: 20,
+    threshold: 20
+  });
+
+  leftPot.on('change', function (d) {
+    let s = 0;
+    if (d < 480) {
+      s = d - 500;
+    } else if (d > 510) {
+      s = d - 490;
+    }
+    analogMove.leftTrack = Math.max(-1, Math.min(1, s / 100));
+  });
+
+  var rightPot = new five.Sensor({
+    pin: "A1",
+    freq: 20,
+    threshold: 20
+  });
+
+  rightPot.on('change', function (d) {
+    let s = 0;
+    if (d < 480) {
+      s = d - 500;
+    } else if (d > 510) {
+      s = d - 490;
+    }
+    analogMove.rightTrack = Math.max(-1, Math.min(1, s / 100));
+  });
+
+});
+
+
 
 const connections = {};
 var nextID = 0;
@@ -50,6 +107,9 @@ function initEventHandlers() {
     });
 
     socket.on('move', function (data) {
+      if (data.id === 'Player0' && analogMove) {
+        data.move = analogMove;
+      }
       storeMove(data.id, data.move);
     });
 
@@ -67,7 +127,7 @@ let t0;
 function updateWorld() {
   const t = Date.now();
   t0 = t0 || t;
-  console.log('*'.repeat(t - t0));
+  // console.log('*'.repeat(t - t0));;;
   const dt = (t - t0) / 1000; // in seconds, not ms
   t0 = t;
 
