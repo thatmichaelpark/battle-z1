@@ -7,6 +7,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 const five = require('johnny-five');
 const BZ1 = require('./bz1.js');
+let analogPlayer = '';
 
 app.use(express.static(path.join('./', '')));
 
@@ -35,33 +36,33 @@ board.on('ready', () => {
   });
 
   var leftPot = new five.Sensor({
-    pin: "A0",
+    pin: "A1",
     freq: 20,
     threshold: 20
   });
 
   leftPot.on('change', function (d) {
     let s = 0;
-    if (d < 480) {
-      s = d - 500;
-    } else if (d > 510) {
-      s = d - 490;
+    if (d < 512 - 15) {
+      s = d - 512;
+    } else if (d > 512 + 15) {
+      s = d - 512;
     }
     analogMove.leftTrack = Math.max(-1, Math.min(1, s / 100));
   });
 
   var rightPot = new five.Sensor({
-    pin: "A1",
+    pin: "A0",
     freq: 20,
     threshold: 20
   });
 
   rightPot.on('change', function (d) {
     let s = 0;
-    if (d < 480) {
-      s = d - 500;
-    } else if (d > 510) {
-      s = d - 490;
+    if (d < 512 - 15) {
+      s = d - 512;
+    } else if (d > 512 + 15) {
+      s = d - 512;
     }
     analogMove.rightTrack = Math.max(-1, Math.min(1, s / 100));
   });
@@ -107,12 +108,21 @@ function initEventHandlers() {
     });
 
     socket.on('move', function (data) {
-      if (data.id === 'Player0' && analogMove) {
+      if (data.id === analogPlayer && analogMove) {
         data.move = analogMove;
       }
       storeMove(data.id, data.move);
     });
 
+    socket.on('takecontrol', (data) => {
+      if (analogPlayer === data) {
+        console.log(analogPlayer, 'is no longer using the sticks.');
+        analogPlayer = '';
+      } else {
+        analogPlayer = data;
+        console.log(analogPlayer, 'is using the sticks');
+      }
+    });
     function storeMove(playerId, move) {
       BZ1.tanks[playerId].move = move;
       if (++movesReceived == Object.keys(connections).length) {

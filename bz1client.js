@@ -69,6 +69,7 @@ const keyQ = 81;
 const keyA = 65;
 const keyP = 80;
 const keyL = 76;
+const escape = 27;
 
 $('body').on('keydown', (event) => {
   switch (event.which) {
@@ -106,6 +107,9 @@ $('body').on('keyup', (event) => {
       break;
     case space:
       moveKeys.fire = false;
+      break;
+    case escape:
+      socket.emit('takecontrol', playerId);
       break;
   }
 });
