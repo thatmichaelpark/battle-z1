@@ -2,6 +2,8 @@
 
 Browser-based multiplayer tank game with Battlezone-inspired graphics.
 
+[![Battle-Z1 on YouTube](http://img.youtube.com/vi/QV0unBpJ5Ek/0.jpg)](http://www.youtube.com/watch?v=QV0unBpJ5Ek)
+
 ## How to start
 
 1. Start server: `node bz1server.js`
