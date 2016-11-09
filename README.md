@@ -6,7 +6,8 @@ Browser-based multiplayer tank game with Battlezone-inspired graphics.
 
 ## How to start
 
-1. Start server: `node bz1server.js`
+1. Download this repo and install node modules: `npm install`
+1. Start server: `npm start`
 1. Point browser at server's port 3000
 
 ## Controls
@@ -19,7 +20,7 @@ Browser-based multiplayer tank game with Battlezone-inspired graphics.
 
 ## Analog control sticks
 
-Battle-Z1 supports analog control sticks in the form of two potentiometers connected to an Arduino running Firmata.
+Battle-Z1 supports analog control sticks in the form of two potentiometers and a pushbutton connected to an Arduino running Firmata.
 
 ## Future work
 

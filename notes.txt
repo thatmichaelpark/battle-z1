@@ -16,6 +16,4 @@ socket.id -> playerId (so incoming move on socket gets assigned to correct playe
 
 
 to do:
-analog controls
 health/death/scoring
-calming screen?
