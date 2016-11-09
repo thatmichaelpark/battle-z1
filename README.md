@@ -24,6 +24,7 @@ Battle-Z1 supports analog control sticks in the form of two potentiometers and a
 
 ## Future work
 
+Battle-Z1 is currently more of a proof-of-concept than a real game. Some gameplay improvements could be:
 * Scoring
 * Death
 * Sounds
